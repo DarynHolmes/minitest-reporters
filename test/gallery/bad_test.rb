@@ -1,7 +1,7 @@
 require_relative "../test_helper"
 
 module MinitestReportersTest
-  class BadTest < TestCase
+  class ZnBadTest < TestCase
     def test_a
       assert_equal 1, 2
     end

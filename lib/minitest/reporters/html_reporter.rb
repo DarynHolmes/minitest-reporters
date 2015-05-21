@@ -32,14 +32,14 @@ module Minitest
 
         tests_by_groups = tests.group_by(&:class) # taken from the JUnit reporter
         suites = []
-        tests_by_groups.each do |suite_name, tests|
+        tests_by_groups.each do |suite, tests|
           suite_result = analyze_suite(tests)
-          suite_result[:name] = suite_name
+          suite_result[:name] = suite.to_s
           suite_result[:tests] = []
           tests.each do |test|
             test_map = {}
             test_map[:name] = friendly_name(test)
-            test_map[:classname] = suite_name
+            test_map[:classname] = suite.to_s
             test_map[:assertion_count] = test.assertions
             test_map[:time] = test.time
             test_map[:result] = result(test)
@@ -48,8 +48,12 @@ module Minitest
 
             suite_result[:tests] << test_map
           end
+          suite_result[:tests].sort! { |a, b| compare_tests(a, b) }
           suites << suite_result
         end
+
+        # suites.sort! { |a, b| a[:name].to_s <=> b[:name].to_s }
+        suites.sort! { |a, b| compare_suites(a, b) }
 
         result = renderer.result(binding)
 
@@ -60,12 +64,54 @@ module Minitest
 
       private
 
+      def compare_suites(suite_a, suite_b)
+        return 0 if suite_has_errors_or_failures(suite_a) && suite_has_errors_or_failures(suite_b)
+        return -1 if suite_has_errors_or_failures(suite_a) && !suite_has_errors_or_failures(suite_b)
+        return 1 if !suite_has_errors_or_failures(suite_a) && suite_has_errors_or_failures(suite_b)
+
+        return 0 if suite_has_skipps(suite_a) && suite_has_skipps(suite_b)
+        return -1 if suite_has_skipps(suite_a) && !suite_has_skipps(suite_b)
+        return 1 if !suite_has_skipps(suite_a) && suite_has_skipps(suite_b)
+
+        suite_a[:name] <=> suite_b[:name]
+      end
+
+      def compare_tests(test_a, test_b)
+        return 0 if test_failed(test_a) && test_failed(test_b)
+        return -1 if test_failed(test_a) && !test_failed(test_b)
+        return 1 if !test_failed(test_a) && test_failed(test_b)
+
+        return 0 if test_skipped(test_a) && test_skipped(test_b)
+        return -1 if test_skipped(test_a) && !test_skipped(test_b)
+        return 1 if !test_skipped(test_a) && test_skipped(test_b)
+
+        test_a[:name] <=> test_b[:name]
+      end
+
+      def test_failed(test)
+        test[:result] == :error || test[:result] == :fail
+      end
+
+      def test_skipped(test)
+        test[:result] == :skip
+      end
+
+      def suite_has_skipps(suite)
+        suite[:skip_count] > 0
+      end
+
+      def suite_has_errors_or_failures(suite)
+        suite[:fail_count] + suite[:error_count] > 0
+      end
+
+
       def friendly_name(test)
         groups = test.name.scan(/(test_\d+_)(.*)/i)
+        return test.name if groups.empty?
         "it #{groups[0][1]}"
       end
 
-      # taken from the JUnit reporter
+# taken from the JUnit reporter
       def analyze_suite(tests)
         result = Hash.new(0)
         tests.each do |test|
@@ -77,7 +123,7 @@ module Minitest
         result
       end
 
-      # based on message_for(test) from the JUnit reporter
+# based on message_for(test) from the JUnit reporter
       def message_for(test)
         suite = test.class
         name = test.name
@@ -94,7 +140,7 @@ module Minitest
         end
       end
 
-      # taken from the JUnit reporter
+# taken from the JUnit reporter
       def location(exception)
         last_before_assertion = ''
         exception.backtrace.reverse_each do |s|

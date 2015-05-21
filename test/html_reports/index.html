@@ -13,7 +13,7 @@
     <div class="jumbotron">
         <h1>Fulcrum Specs</h1>
         <p>
-            Finished in 0.07s, 86.44 tests/s, 72.0358 assertions/s
+            Finished in 0.04s, 159.60 tests/s, 133.0012 assertions/s
         </p>
         <p>
             <strong>
@@ -42,58 +42,14 @@
 
     
         <div class="panel panel-default">
-            <div class="panel-heading"><strong>MinitestReportersTest::GoodTest</strong>
-                <span class="pull-right">
-                    <span class="text-info">2 tests</span>,
-                    <span class=""> 3 assertions</span>,
-                    <span class=""> 0 failures</span>,
-                    <span class=""> 0 errors</span>,
-                    <span class=""> 0 skips</span>,
-                    <span> finished in 0.0000s</span>
-                </span>
-            </div>
-            <div class="panel-body">
-                <div class="list-group">
-                    
-                        <div class="list-group-item">
-                            <h5 class="list-group-item-heading">
-                                
-                                    <span class="glyphicon glyphicon-ok-circle text-info" aria-hidden="true"></span>
-                                
-                                test_b
-                                <span class="pull-right">
-                                    Assertions 1, time 0.000016s
-                                </span>
-                            </h5>
-                            
-                        </div>
-                    
-                        <div class="list-group-item">
-                            <h5 class="list-group-item-heading">
-                                
-                                    <span class="glyphicon glyphicon-ok-circle text-info" aria-hidden="true"></span>
-                                
-                                test_a
-                                <span class="pull-right">
-                                    Assertions 2, time 0.000008s
-                                </span>
-                            </h5>
-                            
-                        </div>
-                    
-                </div>
-            </div>
-        </div>
-    
-        <div class="panel panel-default">
-            <div class="panel-heading"><strong>MinitestReportersTest::BadTest</strong>
+            <div class="panel-heading"><strong>MinitestReportersTest::ZnBadTest</strong>
                 <span class="pull-right">
                     <span class="">4 tests</span>,
                     <span class=""> 2 assertions</span>,
                     <span class="text-danger"> 2 failures</span>,
                     <span class="text-danger"> 1 errors</span>,
                     <span class="text-warning"> 1 skips</span>,
-                    <span> finished in 0.0227s</span>
+                    <span> finished in 0.0138s</span>
                 </span>
             </div>
             <div class="panel-body">
@@ -102,11 +58,11 @@
                         <div class="list-group-item">
                             <h5 class="list-group-item-heading">
                                 
-                                    <span class="glyphicon glyphicon-remove-circle text-danger"  aria-hidden="true"></span>
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
                                 
                                 test_a
                                 <span class="pull-right">
-                                    Assertions 1, time 0.000088s
+                                    Assertions 1, time 0.000086s
                                 </span>
                             </h5>
                             
@@ -120,11 +76,11 @@ Expected: 1
                         <div class="list-group-item">
                             <h5 class="list-group-item-heading">
                                 
-                                    <span class="glyphicon glyphicon-remove-circle text-danger"  aria-hidden="true"></span>
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
                                 
                                 test_b
                                 <span class="pull-right">
-                                    Assertions 1, time 0.022507s
+                                    Assertions 1, time 0.013539s
                                 </span>
                             </h5>
                             
@@ -143,11 +99,11 @@ Expected: 1
                         <div class="list-group-item">
                             <h5 class="list-group-item-heading">
                                 
-                                    <span class="glyphicon glyphicon-remove-circle text-danger"  aria-hidden="true"></span>
+                                    <span class="glyphicon glyphicon-remove text-danger"  aria-hidden="true"></span>
                                 
                                 test_boom
                                 <span class="pull-right">
-                                    Assertions 0, time 0.000047s
+                                    Assertions 0, time 0.000036s
                                 </span>
                             </h5>
                             
@@ -165,7 +121,7 @@ RuntimeError: A random exception
                                 
                                 test_long_method_name
                                 <span class="pull-right">
-                                    Assertions 0, time 0.000096s
+                                    Assertions 0, time 0.000095s
                                 </span>
                             </h5>
                             
@@ -179,7 +135,50 @@ Skipped, no message given</pre>
             </div>
         </div>
     
-
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>MinitestReportersTest::GoodTest</strong>
+                <span class="pull-right">
+                    <span class="text-info">2 tests</span>,
+                    <span class=""> 3 assertions</span>,
+                    <span class=""> 0 failures</span>,
+                    <span class=""> 0 errors</span>,
+                    <span class=""> 0 skips</span>,
+                    <span> finished in 0.0000s</span>
+                </span>
+            </div>
+            <div class="panel-body">
+                <div class="list-group">
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_a
+                                <span class="pull-right">
+                                    Assertions 2, time 0.000007s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                        <div class="list-group-item">
+                            <h5 class="list-group-item-heading">
+                                
+                                    <span class="glyphicon glyphicon-ok text-info" aria-hidden="true"></span>
+                                
+                                test_b
+                                <span class="pull-right">
+                                    Assertions 1, time 0.000016s
+                                </span>
+                            </h5>
+                            
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    
 </div>
 </body>
 </html>
