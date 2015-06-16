@@ -37,7 +37,6 @@ module Minitest
           suite_summary
         end
 
-        # tests_by_suites.sort! { |a, b| a[:name].to_s <=> b[:name].to_s }
         suites.sort! { |a, b| compare_suites(a, b) }
 
         result = renderer.result(binding)
@@ -46,23 +45,20 @@ module Minitest
         end
       end
 
-      # .map do |test|
-      #   ap test
-      #   ap "---"
-      #   test_map = {}
-      #   test_map[:name] = friendly_name(test)
-      #   test_map[:classname] = suite.to_s
-      #   test_map[:assertion_count] = test.assertions
-      #   test_map[:time] = test.time
-      #   test_map[:result] = result(test)
-      #   test_map[:message] = test.failure.message unless test.passed?
-      #   test_map[:location] = location(test.failure) unless test.passed?
-      #   test_map
-      # end
-      #suite_summary[:tests].sort! { |a, b| compare_tests(a, b) }
-
       def passes
         count - failures - errors - skips
+      end
+
+      def percent_passes
+        100 - percent_skipps - percent_errors_failures # prevetns rounding errors
+      end
+
+      def percent_skipps
+        (skips/count.to_f * 100).to_i
+      end
+
+      def percent_errors_failures
+        ((errors+failures)/count.to_f * 100).to_i
       end
 
       # private
@@ -71,50 +67,38 @@ module Minitest
         suite_a[:name] <=> suite_b[:name]
       end
 
-      def compare_suites(suite_a, suite_b)
-        return compare_suites_by_name(suite_a, suite_b) if suite_has_errors_or_failures(suite_a) && suite_has_errors_or_failures(suite_b)
-        return -1 if suite_has_errors_or_failures(suite_a) && !suite_has_errors_or_failures(suite_b)
-        return 1 if !suite_has_errors_or_failures(suite_a) && suite_has_errors_or_failures(suite_b)
-
-        return compare_suites_by_name(suite_a, suite_b) if suite_has_skipps(suite_a) && suite_has_skipps(suite_b)
-        return -1 if suite_has_skipps(suite_a) && !suite_has_skipps(suite_b)
-        return 1 if !suite_has_skipps(suite_a) && suite_has_skipps(suite_b)
-
-        compare_suites_by_name(suite_a, suite_b)
-      end
-
       def compare_tests_by_name(test_a, test_b)
         friendly_name(test_a) <=> friendly_name(test_b)
       end
 
-      def compare_tests(test_a, test_b)
-        return compare_tests_by_name(test_a, test_b) if test_failed?(test_a) && test_failed?(test_b)
-        return -1 if test_failed?(test_a) && !test_failed?(test_b)
-        return 1 if !test_failed?(test_a) && test_failed?(test_b)
+      def compare_suites(suite_a, suite_b)
+        return compare_suites_by_name(suite_a, suite_b) if suite_a[:has_errors_or_failures] && suite_b[:has_errors_or_failures]
+        return -1 if suite_a[:has_errors_or_failures] && !suite_b[:has_errors_or_failures]
+        return 1 if !suite_a[:has_errors_or_failures] && suite_b[:has_errors_or_failures]
 
-        return compare_tests_by_name(test_a, test_b) if test_skipped?(test_a) && test_skipped?(test_b)
-        return -1 if test_skipped?(test_a) && !test_skipped?(test_b)
-        return 1 if !test_skipped?(test_a) && test_skipped?(test_b)
+        return compare_suites_by_name(suite_a, suite_b) if suite_a[:has_skipps] && suite_b[:has_skipps]
+        return -1 if suite_a[:has_skipps] && !suite_b[:has_skipps]
+        return 1 if !suite_a[:has_skipps] && suite_b[:has_skipps]
 
-        friendly_name(test_a) <=> friendly_name(test_b)
+        compare_suites_by_name(suite_a, suite_b)
       end
 
-      def test_failed?(test)
+      def compare_tests(test_a, test_b)
+        return compare_tests_by_name(test_a, test_b) if test_fail_or_error?(test_a) && test_fail_or_error?(test_b)
+
+        return -1 if test_fail_or_error?(test_a) && !test_fail_or_error?(test_b)
+        return 1 if !test_fail_or_error?(test_a) && test_fail_or_error?(test_b)
+
+        return compare_tests_by_name(test_a, test_b) if test_a.skipped? && test_b.skipped?
+        return -1 if test_a.skipped? && !test_b.skipped?
+        return 1 if !test_a.skipped? && test_b.skipped?
+
+        compare_tests_by_name(test_a, test_b)
+      end
+
+      def test_fail_or_error?(test)
         test.error? || test.failure
       end
-
-      def test_skipped?(test)
-        test.skipped?
-      end
-
-      def suite_has_skipps(suite)
-        suite[:skip_count] > 0
-      end
-
-      def suite_has_errors_or_failures(suite)
-        suite[:fail_count] + suite[:error_count] > 0
-      end
-
 
       def friendly_name(test)
         groups = test.name.scan(/(test_\d+_)(.*)/i)
@@ -132,6 +116,8 @@ module Minitest
           summary[:test_count] += 1
           summary[:time] += test.time
         end
+        summary[:has_errors_or_failures] = (summary[:fail_count] + summary[:error_count]) > 0
+        summary[:has_skipps] = summary[:skip_count] > 0
         summary
       end
 
@@ -152,7 +138,7 @@ module Minitest
         end
       end
 
-# taken from the JUnit reporter
+      # taken from the JUnit reporter
       def location(exception)
         last_before_assertion = ''
         exception.backtrace.reverse_each do |s|
@@ -162,6 +148,15 @@ module Minitest
         last_before_assertion.sub(/:in .*$/, '')
       end
 
+      def total_time_to_hms
+        return ('%.2fs' % total_time) if total_time < 1
+
+        hours = total_time / (60 * 60)
+        minutes = ((total_time / 60) % 60).to_s.rjust(2,'0')
+        seconds = (total_time % 60).to_s.rjust(2,'0')
+
+        "#{ hours }h#{ minutes }m#{ seconds }s"
+      end
     end
   end
 end

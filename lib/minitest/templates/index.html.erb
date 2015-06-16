@@ -13,7 +13,7 @@
     <div class="jumbotron">
         <h1><%= title %></h1>
         <p>
-            Finished in <%= '%.2fs' % total_time %>, <%= '%.2f tests/s' % (count / total_time) %>, <%= '%.4f assertions/s' % (assertions / total_time) %>
+            Finished in <%= total_time_to_hms %>, <%= '%.2f tests/s' % (count / total_time) %>, <%= '%.2f assertions/s' % (assertions / total_time) %>
         </p>
         <p>
             <strong>
@@ -26,14 +26,14 @@
         </p>
 
         <div class="progress">
-            <div class="progress-bar progress-bar-info" style="width: <%= (passes/count.to_f * 100) %>%">
-                <%= '%d' % (passes/count.to_f * 100) %>% passed
+            <div class="progress-bar progress-bar-info" style="width: <%= percent_passes %>%">
+                <%= '%d' % percent_passes %>% passed
             </div>
-            <div class="progress-bar progress-bar-danger" style="width: <%= ((errors+failures)/count.to_f * 100) %>%">
-                <%= '%d' % ((errors+failures)/count.to_f * 100) %>% failed
+            <div class="progress-bar progress-bar-danger" style="width: <%= percent_errors_failures %>%">
+                <%= '%d' % percent_errors_failures %>% failed
             </div>
-            <div class="progress-bar progress-bar-warning" style="width: <%= (skips/count.to_f * 100) %>%">
-                <%= '%d' % (skips/count.to_f * 100) %>% skipped
+            <div class="progress-bar progress-bar-warning" style="width: <%= percent_skipps %>%">
+                <%= '%d' % percent_skipps %>% skipped
             </div>
         </div>
 
